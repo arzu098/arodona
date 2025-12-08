@@ -136,6 +136,24 @@ async def shutdown():
 async def root():
     return {"message": "Welcome to Arodona Jewelry Backend"}
 
+@app.get("/debug/env")
+async def debug_environment():
+    """Debug endpoint to check environment variables"""
+    import os
+    from app.config import ENVIRONMENT
+    from app.utils.file_utils import get_file_url
+    
+    env_info = {
+        "ENVIRONMENT": ENVIRONMENT,
+        "RENDER": os.getenv("RENDER"),
+        "RENDER_EXTERNAL_URL": os.getenv("RENDER_EXTERNAL_URL"),
+        "BACKEND_URL": os.getenv("BACKEND_URL"),
+        "is_render_detected": os.getenv("RENDER") is not None,
+        "sample_url": get_file_url("products/test/test.jpg")
+    }
+    
+    return env_info
+
 @app.post("/create-sample-orders")
 async def create_sample_orders():
     """Create sample orders for testing"""

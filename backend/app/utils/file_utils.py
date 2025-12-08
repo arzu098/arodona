@@ -158,12 +158,29 @@ def get_file_url(file_path: str, base_url: str = "/uploads") -> str:
     base_url = base_url.rstrip('/')
     
     # In production, return absolute URL with domain
+    # Check multiple ways to detect production environment
     from app.config import ENVIRONMENT
-    if ENVIRONMENT == "production":
-        backend_url = os.getenv("BACKEND_URL", "https://adorona.onrender.com")
-        return f"{backend_url}{base_url}/{relative_path}"
     
-    return f"{base_url}/{relative_path}"
+    # Also check for Render environment variables as fallback
+    is_render = os.getenv("RENDER") is not None
+    is_production = (
+        ENVIRONMENT == "production" or 
+        is_render or 
+        "render.com" in os.getenv("RENDER_EXTERNAL_URL", "")
+    )
+    
+    # Debug logging
+    print(f"[URL_DEBUG] Environment: {ENVIRONMENT}, RENDER: {os.getenv('RENDER')}, is_production: {is_production}")
+    
+    if is_production:
+        backend_url = os.getenv("BACKEND_URL") or os.getenv("RENDER_EXTERNAL_URL", "https://adorona.onrender.com")
+        final_url = f"{backend_url}{base_url}/{relative_path}"
+        print(f"[URL_DEBUG] Production URL generated: {final_url}")
+        return final_url
+    else:
+        final_url = f"{base_url}/{relative_path}"
+        print(f"[URL_DEBUG] Development URL generated: {final_url}")
+        return final_url
 
 
 def delete_file(file_path: str) -> bool:
