@@ -6,21 +6,13 @@ services:
     buildCommand: "pip install -r requirements.txt"
     startCommand: "uvicorn app:app --host 0.0.0.0 --port $PORT"
     envVars:
-      - key: PYTHON_VERSION
-        value: 3.11.0
       - key: MONGODB_URL
-        value: mongodb+srv://adorona:adorona123@cluster0.mongodb.net
+        value: "mongodb+srv://bhoomi:bhoomi23@cluster0.wcbjoil.mongodb.net/arodona_db?retryWrites=true&w=majority&appName=Cluster0"
       - key: DATABASE_NAME
-        value: adorona
+        value: "arodona_db"
       - key: SECRET_KEY
-        value: your-super-secret-jwt-key-change-this-in-production-2024
-      - key: JWT_ALGORITHM
-        value: HS256
-      - key: API_TITLE
-        value: Adorona Jewelry API
-      - key: API_VERSION
-        value: 1.0.0
+        value: "your-super-secret-key-change-in-production-2024"
       - key: ENVIRONMENT
-        value: production
+        value: "production"
       - key: SUPER_ADMIN_SECRET_KEY
-        value: super-admin-secret-key-2024
+        value: "super-admin-secret-key-2024"
