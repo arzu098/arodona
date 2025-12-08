@@ -324,6 +324,7 @@ async def create_product(
                         "sort_order": idx
                     })
                     print(f"[CREATE_PRODUCT] Added image to list: url={image_info['original']}, thumbnail={image_info['thumbnail']}")
+                    print(f"[CREATE_PRODUCT] Full image object: {uploaded_images[-1]}")
                 except Exception as img_err:
                     print(f"Error uploading image {idx} ({image.filename}): {img_err}")
                     import traceback
@@ -333,10 +334,12 @@ async def create_product(
         # Update product with images
         if uploaded_images:
             print(f"[CREATE_PRODUCT] Updating product with {len(uploaded_images)} images")
-            await db.products.update_one(
+            print(f"[CREATE_PRODUCT] Images to save: {uploaded_images}")
+            result = await db.products.update_one(
                 {"_id": ObjectId(product_id)},
                 {"$set": {"images": uploaded_images}}
             )
+            print(f"[CREATE_PRODUCT] Database update result: matched={result.matched_count}, modified={result.modified_count}")
         else:
             print(f"[CREATE_PRODUCT] No images to update")
         

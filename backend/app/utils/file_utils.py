@@ -186,11 +186,9 @@ def get_file_url(file_path: str, base_url: str = "/uploads") -> str:
         domain = domain.rstrip('/')
         
         final_url = f"{domain}{base_url}/{relative_path}"
-        print(f"[URL_DEBUG] Production URL: {final_url} (domain: {domain}, relative: {relative_path})")
         return final_url
     else:
         final_url = f"{base_url}/{relative_path}"
-        print(f"[URL_DEBUG] Development URL: {final_url}")
         return final_url
 
 

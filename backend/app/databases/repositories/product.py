@@ -694,18 +694,34 @@ class ProductRepository:
                 print(f"[format_product_response] Formatting {len(product['images'])} images")
                 print(f"[format_product_response] Raw images: {product['images']}")
                 
-                # Fix image URLs - convert backslashes to forward slashes
+                # Import get_file_url for consistent URL handling
+                from app.utils.file_utils import get_file_url
+                
+                # Fix image URLs - convert to proper URLs for current environment
                 formatted_images = []
                 for img in product["images"]:
                     img_data = img.copy()
-                    # Fix URL paths - replace backslashes with forward slashes
+                    # Fix URL paths
                     if img_data.get("url"):
                         original_url = img_data["url"]
-                        img_data["url"] = img_data["url"].replace("\\", "/")
-                        if original_url != img_data["url"]:
-                            print(f"[format_product_response] Fixed URL: {original_url} -> {img_data['url']}")
+                        # If URL is already absolute, keep it; otherwise convert it
+                        if original_url.startswith(('http://', 'https://')):
+                            img_data["url"] = original_url
+                        else:
+                            # Extract relative path and use get_file_url for consistency
+                            relative_path = original_url.replace("\\", "/").lstrip("/uploads/")
+                            img_data["url"] = get_file_url(f"uploads/{relative_path}")
+                        print(f"[format_product_response] URL: {original_url} -> {img_data['url']}")
+                    
                     if img_data.get("thumbnail_url"):
-                        img_data["thumbnail_url"] = img_data["thumbnail_url"].replace("\\", "/")
+                        original_thumb = img_data["thumbnail_url"]
+                        if original_thumb.startswith(('http://', 'https://')):
+                            img_data["thumbnail_url"] = original_thumb
+                        else:
+                            relative_path = original_thumb.replace("\\", "/").lstrip("/uploads/")
+                            img_data["thumbnail_url"] = get_file_url(f"uploads/{relative_path}")
+                        print(f"[format_product_response] Thumbnail: {original_thumb} -> {img_data['thumbnail_url']}")
+                    
                     formatted_images.append(ProductImage(**img_data))
                 
                 images = formatted_images
