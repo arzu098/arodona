@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import productService from '../services/productService';
 import { formatProduct } from '../utils/imageUtils';
 import Search from './Search';
+import ImageSlider from './common/ImageSlider';
 
 const Shop = () => {
   const { addToCart, cartItems, isInCart, getCartCount, getItemQuantity, updateQuantity, removeFromCart } = useCart();
@@ -561,8 +562,15 @@ const Shop = () => {
                 {products.map((product) => (
                   <div key={product.id} className="bg-white rounded-lg overflow-hidden hover:shadow-xl transition-all group relative">
                     <Link to={`/product/${product.id}`} className="block">
-                      <div className="relative w-full h-[280px] flex items-center justify-center bg-white p-6">
-                        <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" />
+                      <div className="relative w-full h-[280px] flex items-center justify-center bg-white p-2">
+                        <ImageSlider 
+                          images={product.images || [product.image].filter(Boolean)} 
+                          productName={product.name}
+                          className="w-full h-full"
+                          showThumbnails={false}
+                          showDots={product.images && product.images.length > 1}
+                          compact={true}
+                        />
                       </div>
                       <div className="px-4 py-4 text-center bg-white">
                         <h3 className="text-xs uppercase tracking-wider text-gray-800 mb-2 font-medium">{product.name}</h3>
@@ -664,8 +672,15 @@ const Shop = () => {
                 {products.map((product) => (
                   <div key={product.id} className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-all flex">
                     <Link to={`/product/${product.id}`} className="flex flex-1">
-                      <div className="w-[180px] h-[200px] flex items-center justify-center bg-white p-6 flex-shrink-0">
-                        <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain" />
+                      <div className="w-[180px] h-[200px] flex items-center justify-center bg-white p-2 flex-shrink-0">
+                        <ImageSlider 
+                          images={product.images || [product.image].filter(Boolean)} 
+                          productName={product.name}
+                          className="w-full h-full"
+                          showThumbnails={false}
+                          showDots={product.images && product.images.length > 1}
+                          compact={true}
+                        />
                       </div>
                       <div className="flex-1 p-6 flex flex-col justify-between">
                         <div>

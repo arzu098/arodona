@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 
-const ImageSlider = ({ images, productName, className = "w-full h-48" }) => {
+const ImageSlider = ({ 
+  images, 
+  productName, 
+  className = "w-full h-48", 
+  showThumbnails = true, 
+  showDots = true, 
+  compact = false 
+}) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoadErrors, setImageLoadErrors] = useState(new Set());
 
@@ -124,8 +131,8 @@ const ImageSlider = ({ images, productName, className = "w-full h-48" }) => {
         </div>
       )}
 
-      {/* Dots Indicator - Only show if more than 1 image and less than 6 images */}
-      {images.length > 1 && images.length <= 5 && (
+      {/* Dots Indicator - Only show if more than 1 image, less than 6 images, and showDots is true */}
+      {images.length > 1 && images.length <= 5 && showDots && (
         <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
           {images.map((_, index) => (
             <button
@@ -139,8 +146,8 @@ const ImageSlider = ({ images, productName, className = "w-full h-48" }) => {
         </div>
       )}
 
-      {/* Image thumbnails - Only show if more than 5 images */}
-      {images.length > 5 && (
+      {/* Image thumbnails - Only show if more than 5 images and showThumbnails is true */}
+      {images.length > 5 && showThumbnails && (
         <div className="absolute bottom-2 left-2 right-2 flex space-x-1 overflow-x-auto">
           {images.map((image, index) => {
             const thumbUrl = getImageUrl(image);

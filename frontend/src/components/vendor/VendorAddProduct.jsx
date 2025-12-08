@@ -587,22 +587,7 @@ const VendorAddProduct = () => {
       ) : (
       <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Debug Info - Remove this in production */}
-        {isEditMode && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="text-sm font-semibold text-blue-900 mb-2">Debug Info (Edit Mode)</h3>
-            <div className="text-xs text-blue-800 space-y-1">
-              <p><strong>Product ID:</strong> {productId}</p>
-              <p><strong>Form Data Loaded:</strong> {formData.name ? 'Yes ✓' : 'No ✗'}</p>
-              <p><strong>Category:</strong> "{formData.category}"</p>
-              <p><strong>Subcategory:</strong> "{formData.subcategory}"</p>
-              <p><strong>Jewelry Type:</strong> "{formData.jewelry_type}"</p>
-              <p><strong>Metal Type:</strong> "{formData.metal_type}"</p>
-              <p><strong>Stone Type:</strong> "{formData.stone_type}"</p>
-              <p><strong>Images Loaded:</strong> {existingImages.length} existing, {imageFiles.length} new</p>
-              <p><strong>Image Previews:</strong> {imagePreviews.length}</p>
-            </div>
-          </div>
-        )}
+        {/* Removed empty fragment that caused compile error */}
         
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information Section */}

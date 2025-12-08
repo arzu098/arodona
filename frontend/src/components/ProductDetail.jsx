@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import productService from '../services/productService';
 import { formatProduct } from '../utils/imageUtils';
 import Footer from './Footer';
+import ImageSlider from './common/ImageSlider';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -20,7 +21,6 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [activeTab, setActiveTab] = useState('descriptions');
-  const [mainImage, setMainImage] = useState(0);
 
   // Fetch product details from backend
   useEffect(() => {
@@ -271,24 +271,23 @@ const ProductDetail = () => {
           <div className="grid grid-cols-2 gap-12 mb-16">
             {/* Left - Images */}
             <div>
-              <div className="bg-white rounded-lg p-8 mb-4">
-                <img 
-                  src={product.images && product.images[mainImage] ? product.images[mainImage] : product.image || '/Images/default.png'} 
-                  alt={product.name} 
-                  className="w-full h-[500px] object-contain" 
+              {/* Image Slider */}
+              <div className="bg-white rounded-lg overflow-hidden mb-4">
+                <ImageSlider 
+                  images={product.images || [product.image].filter(Boolean)} 
+                  productName={product.name}
+                  className="w-full h-[500px]"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-4">
-                {product.images && product.images.map((image, index) => (
-                  <div 
-                    key={index} 
-                    onClick={() => setMainImage(index)}
-                    className={`bg-white rounded-lg p-4 cursor-pointer hover:shadow-lg transition-all ${mainImage === index ? 'ring-2 ring-[#3E2F2A]' : ''}`}
-                  >
-                    <img src={image} alt={`${product.name} ${index + 1}`} className="w-full h-32 object-contain" />
-                  </div>
-                ))}
-              </div>
+              
+              {/* Image count and info */}
+              {product.images && product.images.length > 1 && (
+                <div className="text-center text-sm text-gray-600 mb-4">
+                  <span className="bg-gray-100 px-3 py-1 rounded-full">
+                    📷 {product.images.length} images
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Right - Product Info */}
