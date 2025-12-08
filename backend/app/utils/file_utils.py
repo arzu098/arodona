@@ -139,6 +139,8 @@ async def process_image(
 
 def get_file_url(file_path: str, base_url: str = "/uploads") -> str:
     """Convert file path to URL."""
+    from app.config import ENVIRONMENT
+    
     # Normalize the path separators to forward slashes for URLs
     file_path = file_path.replace('\\', '/')
     
@@ -156,6 +158,12 @@ def get_file_url(file_path: str, base_url: str = "/uploads") -> str:
     if not base_url.startswith('/'):
         base_url = f'/{base_url}'
     base_url = base_url.rstrip('/')
+    
+    # In production, return absolute URL with domain
+    if ENVIRONMENT == "production":
+        import os
+        backend_url = os.getenv("BACKEND_URL", "https://adorona.onrender.com")
+        return f"{backend_url}{base_url}/{relative_path}"
     
     return f"{base_url}/{relative_path}"
 
