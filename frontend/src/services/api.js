@@ -5,11 +5,11 @@ let lastLoginTime = 0;
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: 'http://localhost:5858', // Backend URL
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5858', // Backend URL
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds timeout
+  timeout: 30000, // 30 seconds timeout for production
 });
 
 // Function to update last login time (call this after successful login)
