@@ -321,9 +321,10 @@ const VendorAddProduct = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
+    const totalImages = existingImages.length + imageFiles.length + files.length;
     
-    if (imageFiles.length + files.length > 5) {
-      alert('You can upload a maximum of 5 images');
+    if (totalImages > 7) {
+      alert(`You can upload a maximum of 7 images. You currently have ${existingImages.length + imageFiles.length} images selected.`);
       return;
     }
 
@@ -949,21 +950,22 @@ const VendorAddProduct = () => {
               
               {/* Upload Button */}
               <div className="mb-4">
-                <label className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <label className={`cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${(imageFiles.length + existingImages.length) >= 7 ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                  Choose Images
+                  {(imageFiles.length + existingImages.length) >= 7 ? 'Maximum Images Reached' : 'Choose Images'}
                   <input
                     type="file"
                     multiple
                     accept="image/*"
                     onChange={handleImageChange}
                     className="hidden"
+                    disabled={(imageFiles.length + existingImages.length) >= 7}
                   />
                 </label>
-                <span className="ml-3 text-sm text-gray-500">
-                  Upload up to 5 images (JPG, PNG)
+                <span className={`ml-3 text-sm ${(imageFiles.length + existingImages.length) >= 7 ? 'text-red-500' : 'text-gray-500'}`}>
+                  Upload up to 7 images (JPG, PNG) - {imageFiles.length + existingImages.length}/7 selected
                 </span>
               </div>
 
@@ -973,7 +975,7 @@ const VendorAddProduct = () => {
 
               {/* Image Previews */}
               {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                   {imagePreviews.map((preview, index) => {
                     const isExistingImage = index < existingImages.length;
                     const imageData = isExistingImage ? existingImages[index] : null;
