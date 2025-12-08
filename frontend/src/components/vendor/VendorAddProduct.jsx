@@ -320,24 +320,57 @@ const VendorAddProduct = () => {
   };
 
   const handleImageChange = (e) => {
+    console.log('File input changed', e.target.files);
     const files = Array.from(e.target.files);
+    console.log('Selected files:', files.length, files.map(f => f.name));
+    
     const totalImages = existingImages.length + imageFiles.length + files.length;
+    console.log('Total images would be:', totalImages, '(existing:', existingImages.length, 'current:', imageFiles.length, 'new:', files.length, ')');
     
     if (totalImages > 7) {
       alert(`You can upload a maximum of 7 images. You currently have ${existingImages.length + imageFiles.length} images selected.`);
+      // Reset the input value to allow selecting again
+      e.target.value = '';
       return;
     }
 
-    setImageFiles(prev => [...prev, ...files]);
+    // Validate file types
+    const validFiles = files.filter(file => {
+      const isValid = file.type.startsWith('image/');
+      if (!isValid) {
+        console.log('Invalid file type:', file.name, file.type);
+      }
+      return isValid;
+    });
+
+    if (validFiles.length !== files.length) {
+      alert('Some files were skipped because they are not valid image files.');
+    }
+
+    console.log('Adding valid files:', validFiles.length);
+    setImageFiles(prev => {
+      const newFiles = [...prev, ...validFiles];
+      console.log('Updated imageFiles:', newFiles.length);
+      return newFiles;
+    });
 
     // Create previews
-    files.forEach(file => {
+    validFiles.forEach((file, fileIndex) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result]);
+        console.log('Preview created for file:', file.name);
+        setImagePreviews(prev => {
+          const newPreviews = [...prev, reader.result];
+          console.log('Updated previews:', newPreviews.length);
+          return newPreviews;
+        });
       };
       reader.readAsDataURL(file);
     });
+
+    // Reset the input value to allow selecting the same files again or more files
+    e.target.value = '';
+    console.log('Input value reset');
   };
 
   const removeImage = (index) => {
@@ -958,14 +991,17 @@ const VendorAddProduct = () => {
                   <input
                     type="file"
                     multiple
-                    accept="image/*"
+                    accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
                     onChange={handleImageChange}
                     className="hidden"
                     disabled={(imageFiles.length + existingImages.length) >= 7}
+                    key={`image-input-${imageFiles.length + existingImages.length}`}
                   />
                 </label>
                 <span className={`ml-3 text-sm ${(imageFiles.length + existingImages.length) >= 7 ? 'text-red-500' : 'text-gray-500'}`}>
-                  Upload up to 7 images (JPG, PNG) - {imageFiles.length + existingImages.length}/7 selected
+                  Upload up to 7 images (JPG, PNG, WEBP, GIF) - {imageFiles.length + existingImages.length}/7 selected
+                  <br />
+                  <span className="text-xs text-gray-400">You can select multiple images at once or add them one by one</span>
                 </span>
               </div>
 
