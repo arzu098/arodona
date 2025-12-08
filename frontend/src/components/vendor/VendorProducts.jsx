@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import vendorService from '../../services/vendorService';
 import ImageSlider from '../common/ImageSlider';
-import ImageSlider from '../common/ImageSlider';
 
 const VendorProducts = () => {
   const { user, logout } = useAuth();
