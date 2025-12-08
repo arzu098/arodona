@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import vendorService from '../../services/vendorService';
+import ImageSlider from '../common/ImageSlider';
+import ImageSlider from '../common/ImageSlider';
 
 const VendorProducts = () => {
   const { user, logout } = useAuth();
@@ -349,28 +351,13 @@ const VendorProducts = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
             {filteredProducts.map((product) => (
               <div key={product.id} className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                {/* Product Image */}
-                <div className="relative h-48 sm:h-56 bg-gray-200 group">
-                  {product.images && product.images.length > 0 && getImageUrl(product.images[0]) ? (
-                    <img
-                      src={getImageUrl(product.images[0])}
-                      alt={product.images[0]?.alt_text || product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        console.warn('Image failed to load:', getImageUrl(product.images[0]));
-                        e.target.style.display = 'none';
-                        const placeholder = e.target.parentElement.querySelector('.no-image-placeholder');
-                        if (placeholder) {
-                          placeholder.classList.remove('hidden');
-                        }
-                      }}
-                    />
-                  ) : null}
-                  <div className={`no-image-placeholder w-full h-full flex items-center justify-center ${product.images && product.images.length > 0 && getImageUrl(product.images[0]) ? 'hidden' : ''}`}>
-                    <svg className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
+                {/* Product Image Slider */}
+                <div className="relative h-48 sm:h-56 bg-gray-100">
+                  <ImageSlider 
+                    images={product.images || []} 
+                    productName={product.name}
+                    className="w-full h-full"
+                  />
                   <div className="absolute top-2 right-2 flex gap-2">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium shadow-sm ${
                       product.is_active
@@ -575,26 +562,11 @@ const VendorProducts = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-12 w-12 sm:h-16 sm:w-16">
-                            {product.images && product.images.length > 0 && getImageUrl(product.images[0]) ? (
-                              <img
-                                src={getImageUrl(product.images[0])}
-                                alt={product.images[0]?.alt_text || product.name}
-                                className="h-12 w-12 sm:h-16 sm:w-16 rounded object-cover"
-                                onError={(e) => {
-                                  console.warn('Image failed to load:', getImageUrl(product.images[0]));
-                                  e.target.style.display = 'none';
-                                  const placeholder = e.target.parentElement.querySelector('.no-image-placeholder');
-                                  if (placeholder) {
-                                    placeholder.classList.remove('hidden');
-                                  }
-                                }}
-                              />
-                            ) : null}
-                            <div className={`no-image-placeholder h-12 w-12 sm:h-16 sm:w-16 rounded bg-gray-200 flex items-center justify-center ${product.images && product.images.length > 0 && getImageUrl(product.images[0]) ? 'hidden' : ''}`}>
-                              <svg className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
+                            <ImageSlider 
+                              images={product.images || []} 
+                              productName={product.name}
+                              className="w-full h-full rounded"
+                            />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 max-w-xs truncate">

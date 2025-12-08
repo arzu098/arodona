@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import vendorService from '../../services/vendorService';
 import api from '../../services/api';
+import ImageSlider from '../common/ImageSlider';
 
 const VendorAddProduct = () => {
   const { user, logout } = useAuth();
@@ -15,6 +16,7 @@ const VendorAddProduct = () => {
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const [existingImages, setExistingImages] = useState([]); // For edit mode
+  const [imagePreviewMode, setImagePreviewMode] = useState('grid'); // 'grid' or 'slider'
 
   const [formData, setFormData] = useState({
     // Basic Information
@@ -1011,8 +1013,41 @@ const VendorAddProduct = () => {
 
               {/* Image Previews */}
               {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                  {imagePreviews.map((preview, index) => {
+                <div>
+                  {/* Preview Options */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-sm font-medium text-gray-700">
+                      Image Previews ({imagePreviews.length})
+                    </h4>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setImagePreviewMode('grid')}
+                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                          imagePreviewMode === 'grid' 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Grid View
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setImagePreviewMode('slider')}
+                        className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                          imagePreviewMode === 'slider' 
+                            ? 'bg-blue-100 text-blue-700' 
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        Slider View
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Grid View */}
+                  {imagePreviewMode === 'grid' && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">{imagePreviews.map((preview, index) => {
                     const isExistingImage = index < existingImages.length;
                     const imageData = isExistingImage ? existingImages[index] : null;
                     
@@ -1076,6 +1111,71 @@ const VendorAddProduct = () => {
                       </div>
                     );
                   })}
+                </div>
+                  )}
+
+                  {/* Slider View */}
+                  {imagePreviewMode === 'slider' && (
+                    <div className="space-y-4">
+                      {/* Main Slider */}
+                      <div className="relative h-80 rounded-lg overflow-hidden bg-gray-100">
+                        <ImageSlider 
+                          images={imagePreviews.map((preview, index) => ({
+                            url: preview,
+                            alt_text: `Preview ${index + 1}`
+                          }))} 
+                          productName="Product Preview"
+                          className="w-full h-full"
+                        />
+                      </div>
+                      
+                      {/* Image Management Controls */}
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {imagePreviews.map((preview, index) => {
+                          const isExistingImage = index < existingImages.length;
+                          return (
+                            <div key={`slider-${index}`} className="relative group">
+                              <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-gray-300 hover:border-blue-500 transition-colors">
+                                <img
+                                  src={preview}
+                                  alt={`Thumbnail ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => removeImage(index)}
+                                className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+                                title="Remove image"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                              
+                              {/* Image info badges */}
+                              <div className="absolute -bottom-6 left-0 right-0 flex justify-center gap-1">
+                                {index === 0 && (
+                                  <span className="bg-blue-600 text-white text-xs px-1 py-0.5 rounded">
+                                    Main
+                                  </span>
+                                )}
+                                {isExistingImage ? (
+                                  <span className="bg-green-600 text-white text-xs px-1 py-0.5 rounded">
+                                    Saved
+                                  </span>
+                                ) : (
+                                  <span className="bg-orange-600 text-white text-xs px-1 py-0.5 rounded">
+                                    New
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               
