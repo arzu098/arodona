@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from bson import ObjectId
-from app.config import API_TITLE, API_VERSION
+from app.config import API_TITLE, API_VERSION, CORS_ORIGINS, ENVIRONMENT
 from app.db.connection import connect_to_mongo, close_mongo_connection
 from app.routes.auth import router as auth_router
 from app.routes.phone import router as phone_router
@@ -70,9 +70,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 # Add CORS middleware FIRST (before error handler)
+cors_origins = ["*"] if ENVIRONMENT == "development" else CORS_ORIGINS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers

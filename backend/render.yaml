@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: adorona-backend
+    env: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "uvicorn app:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: MONGODB_URL
+        value: mongodb+srv://adorona:adorona123@cluster0.mongodb.net
+      - key: DATABASE_NAME
+        value: adorona
+      - key: JWT_SECRET_KEY
+        value: your-super-secret-jwt-key-change-this-in-production-2024
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: API_TITLE
+        value: Adorona Jewelry API
+      - key: API_VERSION
+        value: 1.0.0
+      - key: ENVIRONMENT
+        value: production
