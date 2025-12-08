@@ -23,10 +23,10 @@ argon2-cffi==23.1.0
 
 # Two-Factor Authentication
 pyotp==2.9.0
-qrcode[pil]==7.4.2
+qrcode==7.4.2
 
-# Image Processing and File Handling
-Pillow==10.1.0
+# Image Processing and File Handling (using compatible version)
+Pillow>=9.0.0
 
 # Payment Processing
 stripe==7.8.0
@@ -38,26 +38,9 @@ email-validator==2.1.0
 requests==2.31.0
 httpx==0.25.2
 
-# SMS Services (optional - uncomment if using)
-# twilio==8.10.0  # For Twilio SMS
-
 # Date and Time Utilities
 python-dateutil==2.8.2
-
-# CORS Middleware (included with FastAPI but explicit)
-# Note: CORS is included with FastAPI, but listed for clarity
-
-# Development and Testing (optional - uncomment if needed)
-# pytest==7.4.3
-# pytest-asyncio==0.21.1
-# pytest-mock==3.12.0
-
-# Logging and Monitoring (optional - uncomment if needed)
-# loguru==0.7.2
 
 # Additional utilities
 python-multipart==0.0.6
 aiofiles==23.2.1
-
-# For handling ObjectIds and MongoDB operations
-# Note: pymongo includes bson, but listing for clarity
