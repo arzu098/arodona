@@ -189,6 +189,9 @@ const VendorAddProduct = () => {
     
     if (!imageUrl) return null;
     
+    // Get the API base URL from environment
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5858';
+    
     // If it's already a full URL, return as is
     if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
       return imageUrl;
@@ -196,22 +199,22 @@ const VendorAddProduct = () => {
     
     // If the URL starts with /uploads, prepend the backend URL
     if (imageUrl.startsWith('/uploads')) {
-      return `http://localhost:5858${imageUrl}`;
+      return `${API_BASE_URL}${imageUrl}`;
     }
     
     // Handle legacy /static prefix - replace with /uploads
     if (imageUrl.startsWith('/static')) {
-      return `http://localhost:5858${imageUrl.replace('/static', '/uploads')}`;
+      return `${API_BASE_URL}${imageUrl.replace('/static', '/uploads')}`;
     }
     
     // If it's a relative path without prefix (legacy data), add /uploads
     if (imageUrl.startsWith('products/') || imageUrl.startsWith('uploads/')) {
       const cleanUrl = imageUrl.startsWith('uploads/') ? imageUrl.substring(8) : imageUrl;
-      return `http://localhost:5858/uploads/${cleanUrl}`;
+      return `${API_BASE_URL}/uploads/${cleanUrl}`;
     }
     
     // Default: assume it needs /uploads/ prefix
-    return `http://localhost:5858/uploads/${imageUrl}`;
+    return `${API_BASE_URL}/uploads/${imageUrl}`;
   };
 
   // Fetch product data in edit mode
