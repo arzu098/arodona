@@ -144,12 +144,24 @@ async def debug_environment():
     from app.utils.file_utils import get_file_url
     
     env_info = {
-        "ENVIRONMENT": ENVIRONMENT,
-        "RENDER": os.getenv("RENDER"),
-        "RENDER_EXTERNAL_URL": os.getenv("RENDER_EXTERNAL_URL"),
-        "BACKEND_URL": os.getenv("BACKEND_URL"),
-        "is_render_detected": os.getenv("RENDER") is not None,
-        "sample_url": get_file_url("products/test/test.jpg")
+        "config": {
+            "ENVIRONMENT": ENVIRONMENT,
+        },
+        "os_environ": {
+            "RENDER": os.getenv("RENDER"),
+            "RENDER_EXTERNAL_URL": os.getenv("RENDER_EXTERNAL_URL"),
+            "BACKEND_URL": os.getenv("BACKEND_URL"),
+            "PORT": os.getenv("PORT"),
+        },
+        "detection": {
+            "is_render_detected": os.getenv("RENDER") is not None,
+            "has_render_url": "render.com" in os.getenv("RENDER_EXTERNAL_URL", ""),
+            "has_backend_url": bool(os.getenv("BACKEND_URL")),
+        },
+        "sample_urls": {
+            "test_product": get_file_url("products/test/test.jpg"),
+            "test_direct": get_file_url("test.jpg"),
+        }
     }
     
     return env_info

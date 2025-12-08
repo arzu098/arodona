@@ -157,29 +157,40 @@ def get_file_url(file_path: str, base_url: str = "/uploads") -> str:
         base_url = f'/{base_url}'
     base_url = base_url.rstrip('/')
     
-    # In production, return absolute URL with domain
-    # Check multiple ways to detect production environment
+    # Improved production detection
     from app.config import ENVIRONMENT
     
-    # Also check for Render environment variables as fallback
+    # Multiple ways to detect production environment
     is_render = os.getenv("RENDER") is not None
+    render_url = os.getenv("RENDER_EXTERNAL_URL", "")
+    backend_url = os.getenv("BACKEND_URL", "")
+    
+    # Determine if we're in production
     is_production = (
         ENVIRONMENT == "production" or 
         is_render or 
-        "render.com" in os.getenv("RENDER_EXTERNAL_URL", "")
+        "render.com" in render_url or
+        "render.com" in backend_url
     )
     
-    # Debug logging
-    print(f"[URL_DEBUG] Environment: {ENVIRONMENT}, RENDER: {os.getenv('RENDER')}, is_production: {is_production}")
-    
+    # For production, use absolute URLs
     if is_production:
-        backend_url = os.getenv("BACKEND_URL") or os.getenv("RENDER_EXTERNAL_URL", "https://adorona.onrender.com")
-        final_url = f"{backend_url}{base_url}/{relative_path}"
-        print(f"[URL_DEBUG] Production URL generated: {final_url}")
+        # Try to get the proper backend URL
+        domain = backend_url or render_url
+        
+        # If no explicit domain set, use the default Render URL
+        if not domain:
+            domain = "https://adorona.onrender.com"
+        
+        # Ensure domain doesn't end with slash
+        domain = domain.rstrip('/')
+        
+        final_url = f"{domain}{base_url}/{relative_path}"
+        print(f"[URL_DEBUG] Production URL: {final_url} (domain: {domain}, relative: {relative_path})")
         return final_url
     else:
         final_url = f"{base_url}/{relative_path}"
-        print(f"[URL_DEBUG] Development URL generated: {final_url}")
+        print(f"[URL_DEBUG] Development URL: {final_url}")
         return final_url
 
 
