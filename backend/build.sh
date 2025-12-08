@@ -1,13 +1,8 @@
-#!/usr/bin/env bash
-# exit on error
-set -o errexit
+#!/bin/bash
 
-# Install dependencies
+# Install Python dependencies
+echo "Installing Python dependencies..."
+pip install --upgrade pip
 pip install -r requirements.txt
-
-# Create uploads directory if it doesn't exist
-mkdir -p uploads/products
-mkdir -p uploads/avatar
-mkdir -p uploads/reviews
 
 echo "Build completed successfully!"
