@@ -41,7 +41,9 @@ CORS_ORIGINS = [
     "https://adorona-frontend.vercel.app",
     "https://adorona.vercel.app",
     "https://adorona-frontend.netlify.app",
-    # Add your actual frontend deployment URLs here
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "*"  # Allow all origins for now to test
 ]
 
 # File Upload Configuration
