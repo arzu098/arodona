@@ -15,6 +15,8 @@ from ..databases.schemas.product import (
 from ..utils.dependencies import get_current_user, get_database
 from ..utils.security import get_password_hash, verify_password
 from ..utils.file_utils import file_manager, validate_file_type, ALLOWED_IMAGE_TYPES
+from ..utils.database_image_storage import DatabaseImageService
+from ..config import BACKEND_URL
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 security = HTTPBearer()
@@ -292,6 +294,9 @@ async def create_product(
         product_id = str(result.inserted_id)
         print(f"[CREATE_PRODUCT] Product inserted successfully with ID: {product_id}")
         
+        # Initialize image service with database connection
+        image_service = DatabaseImageService(db)
+        
         # Handle image uploads if provided
         uploaded_images = []
         if images and len(images) > 0:
@@ -312,18 +317,27 @@ async def create_product(
                         print(f"Image {image.filename} too large, skipping")
                         continue
                     
-                    image_info = await file_manager.save_product_image(
-                        image, vendor_id, product_id
+                    # Store image in database instead of file system
+                    image_result = await image_service.store_image(
+                        image_file=image,
+                        product_id=product_id,
+                        vendor_id=vendor_id,
+                        image_type="product"
                     )
-                    print(f"[CREATE_PRODUCT] Image saved: {image_info}")
+                    print(f"[CREATE_PRODUCT] Image stored in database: {image_result}")
+                    
+                    # Generate API URLs for the stored images
+                    image_url = f"{BACKEND_URL}/api/images/{image_result['image_id']}"
+                    thumbnail_url = f"{BACKEND_URL}/api/images/{image_result['image_id']}"  # Same URL for now, can add thumbnail logic later
+                    
                     uploaded_images.append({
-                        "url": image_info["original"],
-                        "thumbnail_url": image_info["thumbnail"],
+                        "url": image_url,
+                        "thumbnail_url": thumbnail_url,
                         "alt_text": f"{name} - Image {idx + 1}",
                         "is_primary": idx == 0,
                         "sort_order": idx
                     })
-                    print(f"[CREATE_PRODUCT] Added image to list: url={image_info['original']}, thumbnail={image_info['thumbnail']}")
+                    print(f"[CREATE_PRODUCT] Added image to list: url={image_url}, thumbnail={thumbnail_url}")
                     print(f"[CREATE_PRODUCT] Full image object: {uploaded_images[-1]}")
                 except Exception as img_err:
                     print(f"Error uploading image {idx} ({image.filename}): {img_err}")
@@ -520,6 +534,9 @@ async def update_my_product_with_form(
                 detail="Vendor not found"
             )
         
+        # Initialize image service
+        image_service = DatabaseImageService(db)
+        
         # Verify product ownership
         product = await product_repo.get_product_by_id(product_id)
         if not product:
@@ -599,27 +616,18 @@ async def update_my_product_with_form(
                         detail=f"Invalid image type for {image_file.filename}. Allowed types: {', '.join(ALLOWED_IMAGE_TYPES)}"
                     )
                 
-                # Save the image
+                # Save the image in database instead of file system
                 try:
-                    file_data = await file_manager.save_product_image(
-                        image_file,
+                    image_result = await image_service.store_image(
+                        image_file=image_file,
+                        product_id=product_id,
                         vendor_id=vendor.id,
-                        product_id=product_id
+                        image_type="product"
                     )
-                    print(f"Saved image {idx}: {file_data}")
+                    print(f"Saved image {idx} to database: {image_result}")
                     
-                    # save_product_image returns a dict with 'original' and 'thumbnail' keys
-                    file_url = file_data.get('original') if isinstance(file_data, dict) else file_data
-                    
-                    # Ensure URL has /uploads/ prefix (get_file_url should already add it)
-                    # If not present, add it. Also handle legacy /static/ prefix
-                    if file_url.startswith('/static/'):
-                        file_url = file_url.replace('/static/', '/uploads/')
-                    elif not file_url.startswith('/uploads/') and not file_url.startswith('http'):
-                        if file_url.startswith('/'):
-                            file_url = f"/uploads{file_url}"
-                        else:
-                            file_url = f"/uploads/{file_url}"
+                    # Generate API URL for the stored image
+                    file_url = f"{BACKEND_URL}/api/images/{image_result['image_id']}"
                     
                     image_urls.append({
                         "url": file_url,
@@ -878,6 +886,9 @@ async def upload_product_images(
     product_repo = ProductRepository(db)
     vendor_repo = VendorRepository(db)
     
+    # Initialize image service
+    image_service = DatabaseImageService(db)
+    
     # Get vendor for current user
     vendor = await vendor_repo.get_vendor_by_user_id(current_user["user_id"])
     if not vendor:
@@ -903,12 +914,19 @@ async def upload_product_images(
                 detail=f"Invalid file type for {image.filename}"
             )
         
-        image_info = await file_manager.save_product_image(
-            image, vendor.id, product_id
+        image_result = await image_service.store_image(
+            image_file=image,
+            product_id=product_id,
+            vendor_id=vendor.id,
+            image_type="product"
         )
+        
+        # Generate API URL for the stored image
+        image_url = f"{BACKEND_URL}/api/images/{image_result['image_id']}"
+        
         uploaded_images.append({
-            "url": image_info["original"],
-            "thumbnail_url": image_info["thumbnail"],
+            "url": image_url,
+            "thumbnail_url": image_url,  # Same URL for now
             "alt_text": f"{product['name']} - {len(uploaded_images) + 1}",
             "is_primary": len(uploaded_images) == 0,
             "sort_order": len(uploaded_images)
@@ -1339,55 +1357,6 @@ async def get_products_by_category(
                 vendor_id = str(vendor_result.inserted_id)
             else:
                 vendor_id = str(default_vendor["_id"])
-            
-            # Define dummy products for this category
-            category_products = {
-                "necklaces": [
-                    {"name": "Gold Chain Necklace", "price": 299.99, "metal": "18k_gold", "stone": None},
-                    {"name": "Diamond Pendant Necklace", "price": 599.99, "metal": "white_gold", "stone": "diamond"},
-                    {"name": "Pearl Strand Necklace", "price": 199.99, "metal": "sterling_silver", "stone": "pearl"}
-                ],
-                "rings": [
-                    {"name": "Diamond Engagement Ring", "price": 1299.99, "metal": "platinum", "stone": "diamond"},
-                    {"name": "Gold Wedding Band", "price": 399.99, "metal": "18k_gold", "stone": None},
-                    {"name": "Sapphire Cocktail Ring", "price": 899.99, "metal": "white_gold", "stone": "sapphire"}
-                ],
-                "earrings": [
-                    {"name": "Diamond Stud Earrings", "price": 499.99, "metal": "white_gold", "stone": "diamond"},
-                    {"name": "Pearl Drop Earrings", "price": 149.99, "metal": "sterling_silver", "stone": "pearl"},
-                    {"name": "Gold Hoop Earrings", "price": 249.99, "metal": "18k_gold", "stone": None}
-                ],
-                "bracelets": [
-                    {"name": "Tennis Bracelet", "price": 799.99, "metal": "white_gold", "stone": "diamond"},
-                    {"name": "Gold Chain Bracelet", "price": 349.99, "metal": "18k_gold", "stone": None},
-                    {"name": "Charm Bracelet", "price": 199.99, "metal": "sterling_silver", "stone": None}
-                ],
-                "pendants": [
-                    {"name": "Heart Pendant", "price": 179.99, "metal": "rose_gold", "stone": None},
-                    {"name": "Emerald Pendant", "price": 549.99, "metal": "18k_gold", "stone": "emerald"},
-                    {"name": "Cross Pendant", "price": 129.99, "metal": "sterling_silver", "stone": None}
-                ],
-                "brooches": [
-                    {"name": "Floral Brooch", "price": 159.99, "metal": "sterling_silver", "stone": "cubic_zirconia"},
-                    {"name": "Vintage Cameo Brooch", "price": 229.99, "metal": "18k_gold", "stone": None},
-                    {"name": "Pearl Cluster Brooch", "price": 189.99, "metal": "white_gold", "stone": "pearl"}
-                ],
-                "watches": [
-                    {"name": "Diamond Bezel Watch", "price": 2499.99, "metal": "stainless_steel", "stone": "diamond"},
-                    {"name": "Gold Dress Watch", "price": 1599.99, "metal": "18k_gold", "stone": None},
-                    {"name": "Silver Sport Watch", "price": 899.99, "metal": "stainless_steel", "stone": None}
-                ],
-                "anklets": [
-                    {"name": "Chain Anklet", "price": 89.99, "metal": "sterling_silver", "stone": None},
-                    {"name": "Charm Anklet", "price": 119.99, "metal": "18k_gold", "stone": None},
-                    {"name": "Beaded Anklet", "price": 69.99, "metal": "sterling_silver", "stone": "turquoise"}
-                ],
-                "chains": [
-                    {"name": "Rope Chain", "price": 199.99, "metal": "18k_gold", "stone": None},
-                    {"name": "Cuban Link Chain", "price": 349.99, "metal": "18k_gold", "stone": None},
-                    {"name": "Box Chain", "price": 129.99, "metal": "sterling_silver", "stone": None}
-                ]
-            }
             
             # Normalize category name to match keys
             cat_key = category.lower()

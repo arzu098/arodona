@@ -18,6 +18,9 @@ bcrypt==4.1.2
 # Environment Variables
 python-dotenv==1.0.0
 
+# Cloud Storage
+cloudinary==1.36.0
+
 # Password Hashing
 argon2-cffi==23.1.0
 

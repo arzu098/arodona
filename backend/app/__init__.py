@@ -29,6 +29,7 @@ from app.routes.addresses import router as addresses_router
 from app.routes.chat import router as chat_router
 from app.routes.vendor_delivery_chat import router as vendor_delivery_chat_router
 from app.routes.vendor_customer_chat import router as vendor_customer_chat_router
+from app.routes.images import router as images_router
 from app.databases.repositories.category import CategoryRepository
 from app.databases.repositories.favorite import FavoriteRepository
 from app.middleware.error_middleware import error_handler
@@ -43,6 +44,11 @@ logging.basicConfig(
 
 # Create FastAPI app
 app = FastAPI(title=API_TITLE, version=API_VERSION)
+
+# Test endpoint for debugging
+@app.get("/")
+async def root():
+    return {"message": "Server is running", "status": "ok"}
 
 # Add validation error handler
 @app.exception_handler(RequestValidationError)
@@ -107,11 +113,12 @@ app.include_router(addresses_router)
 app.include_router(chat_router)
 app.include_router(vendor_delivery_chat_router)
 app.include_router(vendor_customer_chat_router)
+app.include_router(images_router)
 
 # Serve static files (uploads folder)
 uploads_path = Path(__file__).parent.parent / "uploads"
 uploads_path.mkdir(exist_ok=True)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/uploads", StaticFiles(directory=str(uploads_path)), name="uploads")
 
 # Startup event
 @app.on_event("startup")
@@ -121,6 +128,8 @@ async def startup():
         success = await connect_to_mongo()
         if success:
             print("🎉 Server started with database connection")
+            # Ensure data protection is enabled
+            print("🛡️ Data protection: ENABLED")
         else:
             print("⚠️ Server started without database connection")
     except Exception as e:

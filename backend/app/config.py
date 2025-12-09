@@ -48,4 +48,7 @@ CORS_ORIGINS = [
 
 # File Upload Configuration
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
+
+# Backend URL Configuration
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5858")
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB

@@ -26,6 +26,7 @@ class ReviewRepository:
         title: Optional[str] = None,
         body: Optional[str] = None,
         images: Optional[List[str]] = None,
+        videos: Optional[List[str]] = None,
         is_verified_buyer: bool = False,
         approved: bool = True
     ) -> dict:
@@ -38,6 +39,7 @@ class ReviewRepository:
             "title": title,
             "body": body,
             "images": images or [],
+            "videos": videos or [],
             "is_verified_buyer": is_verified_buyer,
             "approved": approved,
             "helpful_count": 0,

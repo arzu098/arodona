@@ -139,6 +139,11 @@ async def process_image(
 
 def get_file_url(file_path: str, base_url: str = "/uploads") -> str:
     """Convert file path to URL."""
+    
+    # If it's already a full URL (cloud storage), return as is
+    if file_path.startswith(('http://', 'https://')):
+        return file_path
+    
     # Normalize the path separators to forward slashes for URLs
     file_path = file_path.replace('\\', '/')
     
@@ -157,34 +162,14 @@ def get_file_url(file_path: str, base_url: str = "/uploads") -> str:
         base_url = f'/{base_url}'
     base_url = base_url.rstrip('/')
     
-    # Improved production detection
+    # Check environment configuration
     from app.config import ENVIRONMENT
-    
-    # Multiple ways to detect production environment
-    is_render = os.getenv("RENDER") is not None
-    render_url = os.getenv("RENDER_EXTERNAL_URL", "")
     backend_url = os.getenv("BACKEND_URL", "")
     
-    # Determine if we're in production
-    is_production = (
-        ENVIRONMENT == "production" or 
-        is_render or 
-        "render.com" in render_url or
-        "render.com" in backend_url
-    )
-    
-    # For production, use absolute URLs
-    if is_production:
-        # Try to get the proper backend URL
-        domain = backend_url or render_url
-        
-        # If no explicit domain set, use the default Render URL
-        if not domain:
-            domain = "https://adorona.onrender.com"
-        
-        # Ensure domain doesn't end with slash
+    # For development environment, use local backend URL
+    if ENVIRONMENT == "development":
+        domain = backend_url or "http://localhost:5858"
         domain = domain.rstrip('/')
-        
         final_url = f"{domain}{base_url}/{relative_path}"
         return final_url
     else:

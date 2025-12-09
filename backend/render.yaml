@@ -18,3 +18,5 @@ services:
         value: "production"
       - key: SUPER_ADMIN_SECRET_KEY
         value: "super-admin-secret-key-2024"
+      - key: BACKEND_URL
+        value: "https://adorona.onrender.com"

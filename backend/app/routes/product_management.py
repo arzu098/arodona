@@ -15,7 +15,7 @@ from app.databases.schemas.product import (
 from app.databases.repositories.product import ProductRepository
 from app.db.connection import get_database
 from app.utils.security import get_current_user
-from app.utils.image_upload import save_multiple_base64_images
+from app.utils.database_image_storage import DatabaseImageService
 
 router = APIRouter(prefix="/api/admin/products", tags=["Product Management"])
 
@@ -56,7 +56,15 @@ async def bulk_upload_products(
             
             # Save images if provided
             if product_create.images:
-                image_paths = await save_multiple_base64_images(product_create.images)
+                # Store images in database
+                db = get_database()
+                image_service = DatabaseImageService(db)
+                image_ids = await image_service.store_multiple_images(product_create.images, None)
+                # Generate image URLs pointing to our image serving endpoint
+                from app.config import BACKEND_URL, ENVIRONMENT
+                import os
+                backend_url = os.getenv("BACKEND_URL", "http://localhost:5858" if ENVIRONMENT == "development" else "https://adorona.onrender.com")
+                image_paths = [f"{backend_url}/api/images/{image_id}" for image_id in image_ids]
                 product_data["images"] = image_paths
                 
             products_data.append(product_data)
@@ -110,7 +118,15 @@ async def upload_product_images(
             )
         
         # Save images
-        image_paths = await save_multiple_base64_images(images)
+        # Store images in database
+        db = get_database()
+        image_service = DatabaseImageService(db)
+        image_ids = await image_service.store_multiple_images(images, None)
+        # Generate image URLs pointing to our image serving endpoint
+        from app.config import BACKEND_URL, ENVIRONMENT
+        import os
+        backend_url = os.getenv("BACKEND_URL", "http://localhost:5858" if ENVIRONMENT == "development" else "https://adorona.onrender.com")
+        image_paths = [f"{backend_url}/api/images/{image_id}" for image_id in image_ids]
         
         # Add images to product
         updated_product = await repo.add_images_to_product(product_id, image_paths)
