@@ -299,13 +299,18 @@ async def create_product(
         
         # Handle image uploads if provided
         uploaded_images = []
+        print(f"[CREATE_PRODUCT] Processing images: received {len(images) if images else 0} files")
+        
         if images and len(images) > 0:
             # Filter out any None or empty files
             valid_images = [img for img in images if img and img.filename]
+            print(f"[CREATE_PRODUCT] Valid images after filtering: {len(valid_images)}")
             
             for idx, image in enumerate(valid_images):
+                print(f"[CREATE_PRODUCT] Processing image {idx+1}: {image.filename}, content_type: {image.content_type}")
+                
                 if not validate_file_type(image, ALLOWED_IMAGE_TYPES):
-                    print(f"Skipping invalid image type: {image.filename}")
+                    print(f"❌ Skipping invalid image type: {image.filename} (content_type: {image.content_type})")
                     continue
                 
                 try:

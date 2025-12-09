@@ -360,6 +360,16 @@ async def check_orders_structure():
     except Exception as e:
         return {"error": str(e)}
 
+@app.get("/debug/config")
+async def debug_config():
+    """Debug endpoint to check configuration"""
+    from app.config import BACKEND_URL, ENVIRONMENT
+    return {
+        "backend_url": BACKEND_URL,
+        "environment": ENVIRONMENT,
+        "status": "ok"
+    }
+
 @app.get("/database-info")
 async def get_database_info():
     """Get all database collections and their document counts"""

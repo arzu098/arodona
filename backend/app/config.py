@@ -50,5 +50,5 @@ CORS_ORIGINS = [
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 
 # Backend URL Configuration
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5858")
+BACKEND_URL = os.getenv("BACKEND_URL", "https://adorona.onrender.com" if ENVIRONMENT == "production" else "http://localhost:5858")
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
