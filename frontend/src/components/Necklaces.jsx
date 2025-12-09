@@ -23,7 +23,7 @@ const Necklaces = () => {
     const fetchNecklaces = async () => {
       try {
         setIsLoading(true);
-        const response = await productService.getProductsByCategory('necklaces', { limit: 50 });
+        const response = await productService.getProductsByCategory('necklace', { limit: 50 });
         const products = response.products || response.items || [];
         setNecklaces(products.map(formatProduct));
       } catch (error) {
@@ -57,7 +57,7 @@ const Necklaces = () => {
         <div className="max-w-[1400px] mx-auto flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 sm:gap-3 cursor-pointer">
-            <img src="/Images/1000017875-removebg-preview 9.jpg" alt="Soara Logo" className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain" />
+            <img src="/Images/logo.png" alt="Soara Logo" className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain" />
           </Link>
 
           {/* Navigation */}
